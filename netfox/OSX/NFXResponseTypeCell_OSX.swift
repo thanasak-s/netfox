@@ -10,6 +10,7 @@
 import Cocoa
     
 class NFXResponseTypeCell_OSX: NSTableCellView {
+    
     @IBOutlet var typeLabel: NSTextField!
     @IBOutlet var activeCheckbox: NSButton!
 }

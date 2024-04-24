@@ -20,33 +20,40 @@ class NFXSettingsController_OSX: NFXSettingsController, NSTableViewDataSource, N
     // MARK: Lifecycle
     
     override func awakeFromNib() {
-        tableData = HTTPModelShortType.allCases
+        self.tableData = HTTPModelShortType.allValues
+        self.filters =  NFX.sharedInstance().getCachedFilters()
         
         nfxVersionLabel.stringValue = nfxVersionString
         nfxURLButton.title = nfxURL
 
+        #if swift(>=4.2)
         let nibName = cellIdentifier
+        #else
+        let nibName = NSNib.Name(rawValue: cellIdentifier)
+        #endif
 
         responseTypesTableView.register(NSNib(nibNamed: nibName, bundle: nil),
                                         forIdentifier: NSUserInterfaceItemIdentifier(rawValue: cellIdentifier))
-    }
-    
-    override func viewWillAppear() {
-        super.viewWillAppear()
         
-        self.responseTypesTableView.reloadData()
+        reloadTableData()
     }
     
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        
-        NFXHTTPModelManager.shared.filters = filters
+        NFX.sharedInstance().cacheFilters(filters)
     }
     
     // MARK: Actions
 
     @IBAction func loggingButtonClicked(sender: NSButton) {
-        if sender.state == .on {
+        var senderStateOn: Bool
+        #if !swift(>=4.0)
+            senderStateOn = sender.state == NSControlStateValueOn
+        #else
+            senderStateOn = sender.state == .on
+        #endif
+        
+        if senderStateOn {
             NFX.sharedInstance().enable()
         } else {
             NFX.sharedInstance().disable()
@@ -55,6 +62,7 @@ class NFXSettingsController_OSX: NFXSettingsController, NSTableViewDataSource, N
     
     @IBAction func clearDataClicked(sender: AnyObject?) {
         NFX.sharedInstance().clearOldData()
+        NotificationCenter.default.post(name: NSNotification.Name.NFXReloadData, object: nil)
     }
     
     @IBAction func nfxURLButtonClicked(sender: NSButton) {
@@ -63,7 +71,14 @@ class NFXSettingsController_OSX: NFXSettingsController, NSTableViewDataSource, N
     
     @IBAction func toggleResponseTypeClicked(sender: NSButton) {
         filters[sender.tag] = !filters[sender.tag]
-        NFXHTTPModelManager.shared.filters = filters
+        NFX.sharedInstance().cacheFilters(filters)
+        NotificationCenter.default.post(name: NSNotification.Name.NFXReloadData, object: nil)
+    }
+    
+    func reloadTableData() {
+        DispatchQueue.main.async {
+            self.responseTypesTableView.reloadData()
+        }
     }
     
     // MARK: Table View Delegate and DataSource
@@ -73,14 +88,23 @@ class NFXSettingsController_OSX: NFXSettingsController, NSTableViewDataSource, N
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let cellView = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: cellIdentifier), owner: nil)
-        guard let cell = cellView as? NFXResponseTypeCell_OSX else {
+        #if !swift(>=4.0)
+            guard let cell = tableView.make(withIdentifier: cellIdentifier, owner: nil) as? NFXResponseTypeCell_OSX else {
+                return nil
+            }
+        #else
+            guard let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: cellIdentifier), owner: nil) as? NFXResponseTypeCell_OSX else {
             return nil
-        }
+            }
+        #endif
         
         let shortType = tableData[row]
         cell.typeLabel.stringValue = shortType.rawValue
-        cell.activeCheckbox.state = filters[row] ? .on : .off
+        #if !swift(>=4.0)
+            cell.activeCheckbox.state = filters[row] ? NSControlStateValueOn : NSControlStateValueOff
+        #else
+            cell.activeCheckbox.state = filters[row] ? .on : .off
+        #endif
         cell.activeCheckbox.tag = row
         cell.activeCheckbox.target = self
         cell.activeCheckbox.action = #selector(toggleResponseTypeClicked(sender:))

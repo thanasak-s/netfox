@@ -10,7 +10,6 @@
 import Foundation
 import UIKit
 import MessageUI
-
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
@@ -32,7 +31,8 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 
-class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControllerDelegate {
+class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControllerDelegate
+{
     var infoButton: UIButton = UIButton()
     var requestButton: UIButton = UIButton()
     var responseButton: UIButton = UIButton()
@@ -53,42 +53,44 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
 
     internal var sharedContent: String?
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         
-        title = "Details"
-        view.layer.masksToBounds = true
+        self.title = "Details"
+        self.view.layer.masksToBounds = true
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(NFXDetailsController_iOS.actionButtonPressed(_:)))
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(NFXDetailsController_iOS.actionButtonPressed(_:)))
 
         // Header buttons
-        infoButton = createHeaderButton("Info", x: 0, selector: #selector(NFXDetailsController_iOS.infoButtonPressed))
-        requestButton = createHeaderButton("Request", x: infoButton.frame.maxX, selector: #selector(NFXDetailsController_iOS.requestButtonPressed))
-        responseButton = createHeaderButton("Response", x: requestButton.frame.maxX, selector: #selector(NFXDetailsController_iOS.responseButtonPressed))
-        headerButtons.forEach { view.addSubview($0) }
+        self.infoButton = createHeaderButton("Info", x: 0, selector: #selector(NFXDetailsController_iOS.infoButtonPressed))
+        self.requestButton = createHeaderButton("Request", x: self.infoButton.frame.maxX, selector: #selector(NFXDetailsController_iOS.requestButtonPressed))
+        self.responseButton = createHeaderButton("Response", x: self.requestButton.frame.maxX, selector: #selector(NFXDetailsController_iOS.responseButtonPressed))
+        self.headerButtons.forEach { self.view.addSubview($0) }
 
         // Info views
-        infoView = createDetailsView(getInfoStringFromObject(selectedModel), forView: .info)
-        requestView = createDetailsView(getRequestStringFromObject(selectedModel), forView: .request)
-        responseView = createDetailsView(getResponseStringFromObject(selectedModel), forView: .response)
-        infoViews.forEach { view.addSubview($0) }
+        self.infoView = createDetailsView(getInfoStringFromObject(self.selectedModel), forView: .info)
+        self.requestView = createDetailsView(getRequestStringFromObject(self.selectedModel), forView: .request)
+        self.responseView = createDetailsView(getResponseStringFromObject(self.selectedModel), forView: .response)
+        self.infoViews.forEach { self.view.addSubview($0) }
 
         // Swipe gestures
         let lswgr = UISwipeGestureRecognizer(target: self, action: #selector(NFXDetailsController_iOS.handleSwipe(_:)))
         lswgr.direction = .left
-        view.addGestureRecognizer(lswgr)
+        self.view.addGestureRecognizer(lswgr)
 
         let rswgr = UISwipeGestureRecognizer(target: self, action: #selector(NFXDetailsController_iOS.handleSwipe(_:)))
         rswgr.direction = .right
-        view.addGestureRecognizer(rswgr)
+        self.view.addGestureRecognizer(rswgr)
 
         infoButtonPressed()
     }
     
-    func createHeaderButton(_ title: String, x: CGFloat, selector: Selector) -> UIButton {
+    func createHeaderButton(_ title: String, x: CGFloat, selector: Selector) -> UIButton
+    {
         var tempButton: UIButton
         tempButton = UIButton()
-        tempButton.frame = CGRect(x: x, y: 0, width: view.frame.width / 3, height: 44)
+        tempButton.frame = CGRect(x: x, y: 0, width: self.view.frame.width / 3, height: 44)
         tempButton.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleWidth]
         tempButton.backgroundColor = UIColor.NFXDarkStarkWhiteColor()
         tempButton.setTitle(title, for: .init())
@@ -100,7 +102,7 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
     }
 
     @objc fileprivate func copyLabel(lpgr: UILongPressGestureRecognizer) {
-        guard let text = (lpgr.view as? UILabel)?.text ?? (lpgr.view as? UITextView)?.text,
+        guard let text = (lpgr.view as? UILabel)?.text,
               copyAlert == nil else { return }
 
         UIPasteboard.general.string = text
@@ -108,7 +110,7 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         let alert = UIAlertController(title: "Text Copied!", message: nil, preferredStyle: .alert)
         copyAlert = alert
 
-        present(alert, animated: true) { [weak self] in
+        self.present(alert, animated: true) { [weak self] in
             guard let `self` = self else { return }
 
             Timer.scheduledTimer(timeInterval: 0.45,
@@ -123,10 +125,11 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         copyAlert?.dismiss(animated: true) { [weak self] in self?.copyAlert = nil }
     }
     
-    func createDetailsView(_ content: NSAttributedString, forView: EDetailsView) -> UIScrollView {
+    func createDetailsView(_ content: NSAttributedString, forView: EDetailsView) -> UIScrollView
+    {
         var scrollView: UIScrollView
         scrollView = UIScrollView()
-        scrollView.frame = CGRect(x: 0, y: 44, width: view.frame.width, height: view.frame.height - 44)
+        scrollView.frame = CGRect(x: 0, y: 44, width: self.view.frame.width, height: self.view.frame.height - 44)
         scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         scrollView.autoresizesSubviews = true
         scrollView.backgroundColor = UIColor.clear
@@ -151,13 +154,13 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         moreButton = UIButton.init(frame: CGRect(x: 20, y: textView.frame.maxY + 10, width: scrollView.frame.width - 40, height: 40))
         moreButton.backgroundColor = UIColor.NFXGray44Color()
         
-        if ((forView == EDetailsView.request) && (selectedModel.requestBodyLength > 1024)) {
+        if ((forView == EDetailsView.request) && (self.selectedModel.requestBodyLength > 1024)) {
             moreButton.setTitle("Show request body", for: .init())
             moreButton.addTarget(self, action: #selector(NFXDetailsController_iOS.requestBodyButtonPressed), for: .touchUpInside)
             scrollView.addSubview(moreButton)
             scrollView.contentSize = CGSize(width: textView.frame.width, height: moreButton.frame.maxY + 16)
 
-        } else if ((forView == EDetailsView.response) && (selectedModel.responseBodyLength > 1024)) {
+        } else if ((forView == EDetailsView.response) && (self.selectedModel.responseBodyLength > 1024)) {
             moreButton.setTitle("Show response body", for: .init())
             moreButton.addTarget(self, action: #selector(NFXDetailsController_iOS.responseBodyButtonPressed), for: .touchUpInside)
             scrollView.addSubview(moreButton)
@@ -170,7 +173,8 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         return scrollView
     }
     
-    @objc func actionButtonPressed(_ sender: UIBarButtonItem) {
+    @objc func actionButtonPressed(_ sender: UIBarButtonItem)
+    {
         let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .cancel)
@@ -186,7 +190,7 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         }
         actionSheetController.addAction(fullLogAction)
         
-        if let reqCurl  = selectedModel.requestCurl {
+        if let reqCurl  = self.selectedModel.requestCurl {
             let curlAction: UIAlertAction = UIAlertAction(title: "Export request as curl", style: .default) { [unowned self] action -> Void in
                 let activityViewController = UIActivityViewController(activityItems: [reqCurl], applicationActivities: nil)
                 activityViewController.popoverPresentationController?.barButtonItem = sender
@@ -194,23 +198,27 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
             }
             actionSheetController.addAction(curlAction)
         }
+
         
         actionSheetController.view.tintColor = UIColor.NFXOrangeColor()
         actionSheetController.popoverPresentationController?.barButtonItem = sender
 
-        present(actionSheetController, animated: true, completion: nil)
+        self.present(actionSheetController, animated: true, completion: nil)
     }
     
-    @objc func infoButtonPressed() {
-        buttonPressed(infoButton)
+    @objc func infoButtonPressed()
+    {
+        buttonPressed(self.infoButton)
     }
     
-    @objc func requestButtonPressed() {
-        buttonPressed(requestButton)
+    @objc func requestButtonPressed()
+    {
+        buttonPressed(self.requestButton)
     }
     
-    @objc func responseButtonPressed() {
-        buttonPressed(responseButton)
+    @objc func responseButtonPressed()
+    {
+        buttonPressed(self.responseButton)
     }
 
     @objc func handleSwipe(_ gesture: UISwipeGestureRecognizer) {
@@ -228,9 +236,10 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         }
     }
     
-    func buttonPressed(_ sender: UIButton) {
-        guard let selectedButtonIdx = headerButtons.firstIndex(of: sender) else { return }
-        let infoViews = [infoView, requestView, responseView]
+    func buttonPressed(_ sender: UIButton)
+    {
+        guard let selectedButtonIdx = self.headerButtons.firstIndex(of: sender) else { return }
+        let infoViews = [self.infoView, self.requestView, self.responseView]
 
         UIView.animate(withDuration: 0.4,
                        delay: 0.0,
@@ -252,11 +261,13 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
                        completion: nil)
     }
     
-    @objc func responseBodyButtonPressed() {
+    @objc func responseBodyButtonPressed()
+    {
         bodyButtonPressed().bodyType = NFXBodyType.response
     }
     
-    @objc func requestBodyButtonPressed() {
+    @objc func requestBodyButtonPressed()
+    {
         bodyButtonPressed().bodyType = NFXBodyType.request
     }
     
@@ -264,42 +275,42 @@ class NFXDetailsController_iOS: NFXDetailsController, MFMailComposeViewControlle
         
         var bodyDetailsController: NFXGenericBodyDetailsController
         
-        if selectedModel.shortType == .IMAGE {
+        if self.selectedModel.shortType as String == HTTPModelShortType.IMAGE.rawValue {
             bodyDetailsController = NFXImageBodyDetailsController()
         } else {
             bodyDetailsController = NFXRawBodyDetailsController()
         }
-        bodyDetailsController.selectedModel(selectedModel)
-        navigationController?.pushViewController(bodyDetailsController, animated: true)
+        bodyDetailsController.selectedModel(self.selectedModel)
+        self.navigationController?.pushViewController(bodyDetailsController, animated: true)
         return bodyDetailsController
     }
     
-    func shareLog(full: Bool, sender: UIBarButtonItem) {
+    func shareLog(full: Bool, sender: UIBarButtonItem)
+    {
         var tempString = String()
 
         tempString += "** INFO **\n"
-        tempString += "\(getInfoStringFromObject(selectedModel).string)\n\n"
+        tempString += "\(getInfoStringFromObject(self.selectedModel).string)\n\n"
 
         tempString += "** REQUEST **\n"
-        tempString += "\(getRequestStringFromObject(selectedModel).string)\n\n"
+        tempString += "\(getRequestStringFromObject(self.selectedModel).string)\n\n"
 
         tempString += "** RESPONSE **\n"
-        tempString += "\(getResponseStringFromObject(selectedModel).string)\n\n"
+        tempString += "\(getResponseStringFromObject(self.selectedModel).string)\n\n"
 
         tempString += "logged via netfox - [https://github.com/kasketis/netfox]\n"
 
         if full {
-            let requestFileURL = selectedModel.getRequestBodyFileURL()
-            if let requestFileData = try? String(contentsOf: requestFileURL, encoding: .utf8) {
+            let requestFilePath = self.selectedModel.getRequestBodyFilepath()
+            if let requestFileData = try? String(contentsOf: URL(fileURLWithPath: requestFilePath as String), encoding: .utf8) {
                 tempString += requestFileData
             }
 
-            let responseFileURL = selectedModel.getResponseBodyFileURL()
-            if let responseFileData = try? String(contentsOf: responseFileURL, encoding: .utf8) {
+            let responseFilePath = self.selectedModel.getResponseBodyFilepath()
+            if let responseFileData = try? String(contentsOf: URL(fileURLWithPath: responseFilePath as String), encoding: .utf8) {
                 tempString += responseFileData
             }
         }
-        
         displayShareSheet(shareContent: tempString, sender: sender)
     }
 
@@ -323,7 +334,7 @@ extension NFXDetailsController_iOS: UIActivityItemSource {
     }
     
     func activityViewController(_ activityViewController: UIActivityViewController, subjectForActivityType activityType: UIActivityType?) -> String {
-        return "netfox log - \(selectedModel.requestURL!)"
+        return "netfox log - \(self.selectedModel.requestURL!)"
     }
 }
 
@@ -333,16 +344,17 @@ extension NFXDetailsController_iOS: UITextViewDelegate {
         let decodedURL = URL.absoluteString.removingPercentEncoding
         switch decodedURL {
         case "[URL]":
-            guard let queryItems = selectedModel.requestURLQueryItems, queryItems.count > 0 else {
+            guard let queryItems = self.selectedModel.requestURLQueryItems, queryItems.count > 0 else {
                 return false
             }
             let urlDetailsController = NFXURLDetailsController()
-            urlDetailsController.selectedModel = selectedModel
-            navigationController?.pushViewController(urlDetailsController, animated: true)
+            urlDetailsController.selectedModel = self.selectedModel
+            self.navigationController?.pushViewController(urlDetailsController, animated: true)
             return true
         default:
             return false
         }
+        
     }
     
 }

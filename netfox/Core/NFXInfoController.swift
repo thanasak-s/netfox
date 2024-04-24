@@ -7,9 +7,11 @@
     
 import Foundation
 
-class NFXInfoController: NFXGenericController {
+class NFXInfoController: NFXGenericController
+{
     
-    func generateInfoString(_ ipAddress: String) -> NSAttributedString {
+    func generateInfoString(_ ipAddress: String) -> NSAttributedString
+    {
         var tempString: String
         tempString = String()
         

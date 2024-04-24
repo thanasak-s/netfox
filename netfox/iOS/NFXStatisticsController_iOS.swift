@@ -11,36 +11,50 @@ import UIKit
     
 class NFXStatisticsController_iOS: NFXStatisticsController {
 
-    private let scrollView: UIScrollView = UIScrollView()
-    private let textLabel: UILabel = UILabel()
+    var scrollView: UIScrollView = UIScrollView()
+    var textLabel: UILabel = UILabel()
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         
-        title = "Statistics"
+        self.title = "Statistics"
         
-        scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
-        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        scrollView.autoresizesSubviews = true
-        scrollView.backgroundColor = UIColor.clear
-        view.addSubview(scrollView)
+        generateStatics()
         
-        textLabel.frame = CGRect(x: 20, y: 20, width: scrollView.frame.width - 40, height: scrollView.frame.height - 20);
-        textLabel.font = UIFont.NFXFont(size: 13)
-        textLabel.textColor = UIColor.NFXGray44Color()
-        textLabel.numberOfLines = 0
-        textLabel.sizeToFit()
-        scrollView.addSubview(textLabel)
+        self.scrollView = UIScrollView()
+        self.scrollView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        self.scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.scrollView.autoresizesSubviews = true
+        self.scrollView.backgroundColor = UIColor.clear
+        self.view.addSubview(self.scrollView)
         
-        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: textLabel.frame.maxY)
+        self.textLabel = UILabel()
+        self.textLabel.frame = CGRect(x: 20, y: 20, width: scrollView.frame.width - 40, height: scrollView.frame.height - 20);
+        self.textLabel.font = UIFont.NFXFont(size: 13)
+        self.textLabel.textColor = UIColor.NFXGray44Color()
+        self.textLabel.numberOfLines = 0
+        self.textLabel.attributedText = getReportString()
+        self.textLabel.sizeToFit()
+        self.scrollView.addSubview(self.textLabel)
+        
+        self.scrollView.contentSize = CGSize(width: scrollView.frame.width, height: self.textLabel.frame.maxY)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(NFXGenericController.reloadData),
+            name: NSNotification.Name.NFXReloadData,
+            object: nil)
+        
     }
     
-    override func reloadData() {
+    override func reloadData()
+    {
         super.reloadData()
-        
-        textLabel.attributedText = getReportString()
+        DispatchQueue.main.async { () -> Void in
+            self.textLabel.attributedText = self.getReportString()
+        }
     }
-    
 }
 
 #endif

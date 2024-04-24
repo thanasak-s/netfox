@@ -58,7 +58,7 @@ class NFXWindowController: NSWindowController, NSWindowDelegate, NFXWindowContro
 
     override func windowDidLoad() {
         super.windowDidLoad()
-        window?.delegate = self
+        self.window?.delegate = self
     }
     
     // MARK: NSWindowDelegate
@@ -87,7 +87,7 @@ class NFXWindowController: NSWindowController, NSWindowDelegate, NFXWindowContro
     
 extension NFXWindowController {
     func httpModelSelectedDidChange(model: NFXHTTPModel) {
-        detailsViewController.selectedModel(model)
+        self.detailsViewController.selectedModel(model)
     }
 }
 

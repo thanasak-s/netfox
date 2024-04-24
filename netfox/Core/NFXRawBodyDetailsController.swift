@@ -10,36 +10,37 @@
 import Foundation
 import UIKit
 
-class NFXRawBodyDetailsController: NFXGenericBodyDetailsController {
+class NFXRawBodyDetailsController: NFXGenericBodyDetailsController
+{
     var bodyView: UITextView = UITextView()
     private var copyAlert: UIAlertController?
     
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
-        let viewFrame = view.frame
         
-        title = "Body details"
+        self.title = "Body details"
         
-        bodyView.frame = CGRect(x: 0, y: 0, width: viewFrame.width, height: viewFrame.height)
-        bodyView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        bodyView.backgroundColor = UIColor.clear
-        bodyView.textColor = UIColor.NFXGray44Color()
-		bodyView.textAlignment = .left
-        bodyView.isEditable = false
-        bodyView.isSelectable = false
-        bodyView.font = UIFont.NFXFont(size: 13)
+        self.bodyView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        self.bodyView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.bodyView.backgroundColor = UIColor.clear
+        self.bodyView.textColor = UIColor.NFXGray44Color()
+		self.bodyView.textAlignment = .left
+        self.bodyView.isEditable = false
+        self.bodyView.isSelectable = false
+        self.bodyView.font = UIFont.NFXFont(size: 13)
 
         let lpgr = UILongPressGestureRecognizer(target: self, action: #selector(NFXRawBodyDetailsController.copyLabel))
-        bodyView.addGestureRecognizer(lpgr)
+        self.bodyView.addGestureRecognizer(lpgr)
         
         switch bodyType {
             case .request:
-                bodyView.text = selectedModel.getRequestBody() as String
+                self.bodyView.text = self.selectedModel.getRequestBody() as String
             default:
-                bodyView.text = selectedModel.getResponseBody() as String
+                self.bodyView.text = self.selectedModel.getResponseBody() as String
         }
         
-        view.addSubview(bodyView)
+        self.view.addSubview(self.bodyView)
     }
 
     @objc fileprivate func copyLabel(lpgr: UILongPressGestureRecognizer) {
@@ -51,7 +52,7 @@ class NFXRawBodyDetailsController: NFXGenericBodyDetailsController {
         let alert = UIAlertController(title: "Text Copied!", message: nil, preferredStyle: .alert)
         copyAlert = alert
 
-        present(alert, animated: true) { [weak self] in
+        self.present(alert, animated: true) { [weak self] in
             guard let `self` = self else { return }
 
             Timer.scheduledTimer(timeInterval: 0.45,
